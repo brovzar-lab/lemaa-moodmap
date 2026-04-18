@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { isDemoMode } from '../lib/demoMode'
 
 interface DemoState {
   isDemoSession: boolean
@@ -6,6 +7,6 @@ interface DemoState {
 }
 
 export const useDemoStore = create<DemoState>((set) => ({
-  isDemoSession: false,
+  isDemoSession: isDemoMode,
   activateDemoSession: () => set({ isDemoSession: true }),
 }))
