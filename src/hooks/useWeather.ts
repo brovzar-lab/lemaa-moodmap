@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { isDemoMode } from '../lib/demoMode'
+import { DEMO_WEATHER } from '../lib/demoData'
 import type { WeatherData } from '../types'
 
 async function fetchWeather(lat: number, lon: number): Promise<WeatherData> {
@@ -27,6 +29,8 @@ export function useWeather() {
       const pos = await getPosition()
       return fetchWeather(pos.coords.latitude, pos.coords.longitude)
     },
+    enabled: !isDemoMode,
+    initialData: isDemoMode ? DEMO_WEATHER : undefined,
     staleTime: 1000 * 60 * 30,
     retry: false,
   })

@@ -6,6 +6,7 @@ import { useTodayEntry } from '../hooks/useTodayEntry'
 import { usePastTags } from '../hooks/usePastTags'
 import { saveMoodEntry } from '../lib/firestore'
 import { getDailyHealthData } from '../utils/seededRandom'
+import { isDemoMode } from '../lib/demoMode'
 
 const MOOD_EMOJIS = ['😞', '😟', '😐', '🙂', '😊']
 
@@ -66,6 +67,7 @@ export function LogPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [editMode, setEditMode] = useState(false)
+  const [demoToast, setDemoToast] = useState(false)
 
   useEffect(() => {
     if (existingEntry) {
@@ -107,6 +109,11 @@ export function LogPage() {
   }
 
   async function handleSave() {
+    if (isDemoMode) {
+      setDemoToast(true)
+      setTimeout(() => setDemoToast(false), 3000)
+      return
+    }
     if (!weather) return
     setSaving(true)
     try {
@@ -235,16 +242,22 @@ export function LogPage() {
 
       <button
         onClick={handleSave}
-        disabled={saving || !weather || weatherLoading}
+        disabled={saving || (!isDemoMode && (!weather || weatherLoading))}
         className="w-full bg-violet-600 hover:bg-violet-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold rounded-xl py-3 transition-colors"
       >
         {saving ? 'Saving…' : saved ? 'Saved! Update again' : editMode ? 'Update entry' : 'Save entry'}
       </button>
 
-      {!weather && !weatherLoading && (
+      {!isDemoMode && !weather && !weatherLoading && (
         <p className="text-xs text-amber-600 text-center mt-2">
           Allow location access to auto-populate weather before saving.
         </p>
+      )}
+
+      {demoToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-sm px-5 py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap">
+          Demo mode — entry not saved
+        </div>
       )}
     </div>
   )
